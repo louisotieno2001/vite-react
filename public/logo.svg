@@ -1,0 +1,19 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="red-grad" x1="50" y1="0" x2="50" y2="100" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FF416C"/>
+            <stop offset="1" stop-color="#FF007A"/>
+        </linearGradient>
+        <linearGradient id="blue-grad" x1="50" y1="0" x2="50" y2="100" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00E5FF"/>
+            <stop offset="1" stop-color="#00AEEF"/>
+        </linearGradient>
+    </defs>
+    <path d="M50 50 L10 20 C15 15, 25 10, 35 15 L50 50 Z" fill="url(#red-grad)"/>
+    <path d="M50 50 L90 20 C85 15, 75 10, 65 15 L50 50 Z" fill="url(#red-grad)"/>
+    <path d="M50 50 L10 80 C15 85, 25 90, 35 85 L50 50 Z" fill="url(#red-grad)"/>
+    <path d="M50 50 L20 10 C15 15, 10 25, 15 35 L50 50 Z" transform="rotate(90 50 50)" fill="url(#blue-grad)"/>
+    <path d="M50 50 L80 10 C85 15, 90 25, 85 35 L50 50 Z" transform="rotate(90 50 50)" fill="url(#blue-grad)"/>
+    <path d="M50 50 L20 90 C15 85, 10 75, 15 65 L50 50 Z" transform="rotate(90 50 50)" fill="url(#blue-grad)"/>
+    <path d="M50 50 L90 80 C85 85, 75 90, 65 85 L50 50 Z" fill="url(#blue-grad)"/>
+</svg>
