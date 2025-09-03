@@ -7,8 +7,16 @@ import { Project } from '@/types';
 import { Plus, Rocket, Zap, Target } from 'lucide-react';
 
 const getProjects = async (): Promise<Project[]> => {
-    const { data } = await apiClient.get('/projects/');
-    return data;
+    try {
+        const { data } = await apiClient.get('/projects/');
+        return data;
+    } catch (error: any) {
+        // If unauthorized or authentication error, return empty array
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            return [];
+        }
+        throw error;
+    }
 };
 
 const Dashboard = () => {
@@ -38,13 +46,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      {isError && (
-        <div className="text-red-500 text-center p-4 bg-red-100 rounded-lg">
-          <p>Error loading projects: {error.message}</p>
-        </div>
-      )}
-
-      {!isLoading && !isError && (
+      {!isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects && projects.length > 0 ? (
             projects.map((project) => (
@@ -52,7 +54,7 @@ const Dashboard = () => {
                 <h2 className="text-xl font-semibold mb-2">{project.name}</h2>
                 <p className="text-gray-600 mb-4">{project.source_url}</p>
                 <Button variant="outline" asChild>
-                  <Link to={`/project/${project.id}/preview`}>View Details</Link>
+                  <Link to={`/project/${project.id}`}>View Details</Link>
                 </Button>
               </div>
             ))
@@ -98,6 +100,12 @@ const Dashboard = () => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {isError && projects && projects.length === 0 && (
+        <div className="text-red-500 text-center p-4 bg-red-100 rounded-lg">
+          <p>Something went wrong while loading projects</p>
         </div>
       )}
     </div>

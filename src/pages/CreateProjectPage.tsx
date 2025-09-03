@@ -22,7 +22,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const createProject = async (data: FormData) => {
-  const response = await apiClient.post('/projects/', data);
+  const response = await apiClient.post('/projects/new/', data);
   return response.data;
 };
 
