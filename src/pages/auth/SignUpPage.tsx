@@ -10,12 +10,13 @@ import { apiClient } from '@/services/api';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
-  username: z.string().min(2, { message: 'Username must be at least 2 characters long.' }),
+  first_name: z.string().min(2, { message: 'First name must be at least 2 characters long.' }),
+  last_name: z.string().min(2, { message: 'Last name must be at least 2 characters long.' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters long.' }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
+  password2: z.string(),
+}).refine((data) => data.password === data.password2, {
     message: "Passwords don't match",
-    path: ['confirmPassword'],
+    path: ['password2'],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -27,24 +28,27 @@ const SignUpPage = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
-      username: '',
+      first_name: '',
+      last_name: '',
       password: '',
-      confirmPassword: '',
+      password2: '',
     },
   });
 
   const onSubmit = async (data: FormData) => {
     try {
-      await apiClient.post('/users/register/', {
+      await apiClient.post('/auth/register/', {
         email: data.email,
-        username: data.username,
+        first_name: data.first_name,
+        last_name: data.last_name,
         password: data.password,
+        password2: data.password2,
       });
       toast.success('Registration successful! Please log in.');
       navigate('/login');
     } catch (error: any) {
       console.error('Registration failed:', error);
-      const errorMessage = error.response?.data?.email?.[0] || 'Registration failed. Please try again.';
+      const errorMessage = error.response?.data?.email?.[0] || error.response?.data?.password?.[0] || 'Registration failed. Please try again.';
       toast.error(errorMessage);
     }
   };
@@ -57,12 +61,25 @@ const SignUpPage = () => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="username"
+              name="first_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>First Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Choose a username" {...field} />
+                    <Input placeholder="Enter your first name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="last_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your last name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,7 +113,7 @@ const SignUpPage = () => {
             />
             <FormField
                 control={form.control}
-                name="confirmPassword"
+                name="password2"
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Confirm Password</FormLabel>

@@ -6,6 +6,7 @@ import { AppRoutes } from '@/routes';
 import { Toaster } from 'sonner';
 import { useAuthStore } from './stores/useAuth';
 import '@/styles/main.css';
+import './i18n';
 
 // Initialize auth state on application load
 useAuthStore.getState().initializeAuth();

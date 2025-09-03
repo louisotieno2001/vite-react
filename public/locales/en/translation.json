@@ -30,5 +30,15 @@
   "faq_q6": "Is my app unique?",
   "faq_a6": "Yes. While our AI uses best practices and pre-defined architectures, the final app is tailored to your brand, content, and the user persona generated from your website.",
   "faq_q7": "What if I need help?",
-  "faq_a7": "We have a dedicated support team ready to assist you. You can reach out to us via the chat on our platform or by emailing support@applaude.ai."
+  "faq_a7": "We have a dedicated support team ready to assist you. You can reach out to us via the chat on our platform or by emailing support@applause.ai.",
+  "app_name": "Applaude",
+  "blog": "Blog",
+  "resources": "Resources",
+  "company": "Company",
+  "legal": "Legal",
+  "api": "API",
+  "support": "Support",
+  "terms": "Terms",
+  "privacy": "Privacy",
+  "copyright": "Applaude, Inc. All rights reserved."
 }

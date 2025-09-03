@@ -1,10 +1,10 @@
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
+// import Header from '../components/layout/Header';
+// import Footer from '../components/layout/Footer';
 
 const PrivacyPolicyPage = () => {
     return (
         <div className="bg-white">
-            <Header />
+            {/* <Header /> */}
             <main className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8 prose lg:prose-xl">
                 <h1>Privacy Policy for Applaude</h1>
                 <p><strong>Last Updated:</strong> July 16, 2025</p>
@@ -48,7 +48,7 @@ const PrivacyPolicyPage = () => {
                 <h2>7. Contact Us</h2>
                 <p>If you have questions or comments about this Privacy Policy, please contact us at: <a href="mailto:privacy@applaude.ai">privacy@applaude.ai</a></p>
             </main>
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 };

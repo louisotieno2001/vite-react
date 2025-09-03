@@ -34,7 +34,7 @@ const LoginPage = () => {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const response = await apiClient.post('/users/token/', data);
+      const response = await apiClient.post('/auth/login/', data);
       await login(response.data.access, response.data.refresh);
       toast.success('Login successful!');
       navigate('/dashboard');

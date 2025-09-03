@@ -28,36 +28,43 @@ const SupportPage = () => {
     };
 
     return (
-        <div>
-            <h1>{t('support.title')}</h1>
+        <div className="max-w-4xl mx-auto p-6 bg-gray-100">
+            <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">{t('faq')}</h1>
 
-            <section>
-                <h2>{t('support.faq_title')}</h2>
+            <section className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <h2 className="text-2xl font-semibold text-blue-600 mb-4">{t('faq_title')}</h2>
                 {faqs.map((faq: any) => (
-                    <div key={faq.id}>
-                        <h3>{faq.question}</h3>
-                        <p>{faq.answer}</p>
+                    <div key={faq.id} className="mb-4">
+                        <h3 className="text-xl font-medium text-gray-700">{faq.question}</h3>
+                        <p className="text-gray-600">{faq.answer}</p>
                     </div>
                 ))}
             </section>
 
-            <section>
-                <h2>{t('support.submit_ticket_title')}</h2>
-                <form onSubmit={handleTicketSubmit}>
+            <section className="bg-white rounded-lg shadow-md p-4">
+                <h2 className="text-2xl font-semibold text-blue-600 mb-4">{t('submit_ticket_title')}</h2>
+                <form onSubmit={handleTicketSubmit} className="flex flex-col">
                     <input
                         type="text"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        placeholder={t('support.subject_placeholder')}
+                        placeholder={t('subject_placeholder')}
                         required
+                        className="border border-gray-300 rounded-md p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder={t('support.description_placeholder')}
+                        placeholder={t('description_placeholder')}
                         required
+                        className="border border-gray-300 rounded-md p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <button type="submit">{t('support.submit_button')}</button>
+                    <button
+                        type="submit"
+                        className="bg-blue-600 text-white rounded-md p-2 hover:bg-blue-700 transition duration-200"
+                    >
+                        {t('Submit')}
+                    </button>
                 </form>
             </section>
         </div>

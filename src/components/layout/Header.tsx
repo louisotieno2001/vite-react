@@ -16,12 +16,19 @@ const languages = [
     { code: 'es', name: 'Español' },
     { code: 'fr', name: 'Français' },
     { code: 'de', name: 'Deutsch' },
+    { code: 'ar', name: 'العربية' },
+    { code: 'hi', name: 'हिन्दी' },
+    { code: 'ja', name: '日本語' },
+    { code: 'pr', name: 'Português' },
+    { code: 'pt', name: 'Português (BR)' },
+    { code: 'ru', name: 'Русский' },
+    { code: 'zh', name: '中文' },
 ];
 
 const Header: React.FC = () => {
     const { isAuthenticated, user, logout } = useAuthStore();
     const navigate = useNavigate();
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
 
     const handleLogout = () => {
         logout();
@@ -39,8 +46,8 @@ const Header: React.FC = () => {
                     Applaude
                 </Link>
                 <div className="flex items-center space-x-2 md:space-x-4">
-                    <Link to="/blog" className="text-sm md:text-base text-gray-600 hover:text-gray-900">Blog</Link>
-                    <Link to="/about" className="text-sm md:text-base text-gray-600 hover:text-gray-900">About</Link>
+                    <Link to="/blog" className="text-sm md:text-base text-gray-600 hover:text-gray-900">{t('blog')}</Link>
+                    <Link to="/about" className="text-sm md:text-base text-gray-600 hover:text-gray-900">{t('about')}</Link>
                     
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -59,14 +66,14 @@ const Header: React.FC = () => {
 
                     {isAuthenticated ? (
                         <>
-                            <span className="hidden md:inline text-gray-700">Hi, {user?.username}</span>
-                            <Button variant="outline" onClick={() => navigate('/dashboard')}>Dashboard</Button>
-                            <Button onClick={handleLogout}>Logout</Button>
+                            <span className="hidden md:inline text-gray-700">{t('welcome_back', { email: user?.username })}</span>
+                            <Button variant="outline" onClick={() => navigate('/dashboard')}>{t('dashboard')}</Button>
+                            <Button onClick={handleLogout}>{t('logout')}</Button>
                         </>
                     ) : (
                         <>
-                            <Button variant="ghost" onClick={() => navigate('/login')}>Login</Button>
-                            <Button onClick={() => navigate('/signup')}>Sign Up</Button>
+                            <Button variant="ghost" onClick={() => navigate('/login')}>{t('login')}</Button>
+                            <Button onClick={() => navigate('/signup')}>{t('signup')}</Button>
                         </>
                     )}
                 </div>

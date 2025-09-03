@@ -53,7 +53,7 @@ const MobileNav = () => {
                     <ul className="space-y-6 text-xl text-black">
                         <li><Link to="/about" onClick={toggleMenu} className="hover:text-ion-blue transition-colors">{t('about')}</Link></li>
                         <li><Link to="/faq" onClick={toggleMenu} className="hover:text-ion-blue transition-colors">{t('faq')}</Link></li>
-                        <li><Link to="/blog" onClick={toggleMenu} className="hover:text-ion-blue transition-colors">Blog</Link></li>
+                        <li><Link to="/blog" onClick={toggleMenu} className="hover:text-ion-blue transition-colors">{t('blog')}</Link></li>
                         {authContext?.isAuthenticated ? (
                             <>
                                 <li><Link to="/dashboard" onClick={toggleMenu} className="hover:text-ion-blue transition-colors">{t('dashboard')}</Link></li>
