@@ -20,7 +20,7 @@ const getProjects = async (): Promise<Project[]> => {
 };
 
 const Dashboard = () => {
-  const { data: projects, isLoading, isError, error } = useQuery<Project[], Error>({
+  const { data: projects, isLoading, isError } = useQuery<Project[], Error>({
     queryKey: ['projects'],
     queryFn: getProjects,
   });
