@@ -12,7 +12,7 @@ interface ChatUIProps {
   firstName: string;
 }
 
-const KEY = import.meta.env.GEMINI_API_KEY;
+const KEY = import.meta.env.GEMINI_API_KEY || 'AIzaSyCCCqHK7Ni59Yx8VDYU2j-C1Rc370vSt2w';
 
 const CreateProjectPage: React.FC<ChatUIProps> = ({ firstName }) => {
   const [messages, setMessages] = useState<Message[]>([]);
