@@ -29,6 +29,7 @@ const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
 const SubmitTestimonialPage = lazy(() => import('@/components/core/SubmitTestimonialPage'));
 const UpgradeSubscriptionPage = lazy(() => import('@/pages/UpgradeSubscriptionPage'));
+const DemoPage = lazy(()=> import('@/pages/DemoPage'))
 
 // Fallback component for Suspense
 const PageLoader = () => (
@@ -59,6 +60,7 @@ export const AppRoutes = () => {
               <Route path="/terms" element={<TermsOfServicePage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/upgrade" element={<UpgradeSubscriptionPage />} />
+              <Route path="/demo" element={<DemoPage/>}/>
 
               {/* Protected Routes */}
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />

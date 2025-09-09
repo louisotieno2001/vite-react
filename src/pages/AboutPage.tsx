@@ -2,8 +2,8 @@ import { Card } from '@/components/ui/Card';
 
 
 // Corrected: Import images from their location inside the 'src' directory
-import mugambiJohnNdeke from '../assets/images/mugambi_john_ndeke.jpg.jpg';
-import tsionTamirat from '../assets/images/tsion_tamirat.jpg.jpg';
+import mugambiJohnNdeke from '../assets/images/mugambi_john_ndeke.jpg';
+import tsionTamirat from '../assets/images/tsion_tamirat.jpg';
 
 const AboutPage = () => {
     const foundingTeam = [
