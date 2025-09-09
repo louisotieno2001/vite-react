@@ -1,65 +1,92 @@
-import { Card } from '@/components/ui/Card';
+// import React from "react";
+import tsionImage from "@/assets/images/tsion_tamirat.jpg";
+import mugambiImage from "@/assets/images/mugambi_john_ndeke.jpg";
 
+const AboutUs = () => {
+  const team = [
+    {
+      name: "Tsion Tamirat",
+      image: tsionImage,
+      role: "Co-Founder & Vision Lead",
+    },
+    {
+      name: "Mugambi Ndoke",
+      image: mugambiImage,
+      role: "Co-Founder & Strategy Lead",
+    },
+    {
+      name: "Laura Nyaga",
+      image: "https://picsum.photos/300/500?random=8",
+      role: "Co-Founder & Operations",
+    },
+  ];
 
-// Corrected: Import images from their location inside the 'src' directory
-import mugambiJohnNdeke from '../assets/images/mugambi_john_ndeke.jpg';
-import tsionTamirat from '../assets/images/tsion_tamirat.jpg';
+  return (
+    <div className="bg-white min-h-screen flex flex-col items-center relative p-6">
+      {/* Purple semi-circle fusion at the bottom */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-purple-600 rounded-t-full"></div>
 
-const AboutPage = () => {
-    const foundingTeam = [
-        {
-            name: 'Mugambi (John) Ndeke',
-            role: 'co-founder & AI Lead',
-            bio: "As the visionary behind Uplas, John combines deep technical expertise with a powerful drive to solve real-world problems. He is a full-stack AI Software Engineer who builds cutting-edge AI agentic systems and possesses a rare blend of skills in Python/Django, MySQL, and modern frontend development. But John is more than a coder; his foundation as an award-winning Digital Strategist gives him a unique lens on building a brand that resonates and a product that sells. He doesn't just deliver technical excellence; he builds with a strategic business perspective, ensuring Uplas is not only innovative but also impactful.",
-            image: mugambiJohnNdeke
-        },
-        {
-            name: 'Tsion Tamirat',
-            role: 'Co-Founder & Software Engineer',
-            bio: "Tsion is a motivated and versatile Software Engineer, driven by a passion for creating impactful, user-focused applications with clean, efficient code. With a strong foundation from Arba Minch University and practical experience at NGCS, she brings a robust skill set in both backend and frontend technologies. Her expertise spans C# (.NET Core), Python (Django), and modern frontend frameworks like React, ensuring our platform is not just powerful but also responsive and intuitive. A critical thinker and natural collaborator, Tsion is committed to continuous learning and plays a vital role in shaping the technical architecture and user experience of Applaude.",
-            image: tsionTamirat
-        }
-    ]
+      {/* Title */}
+      <h1 className="text-blue-600 text-3xl sm:text-4xl font-bold mt-8 underline text-center">
+        About Us
+      </h1>
 
-    return (
-        <div className="min-h-screen bg-quantum-black text-black">
-            {/* <Header /> */}
-            <main className="pt-32 pb-16 px-8 max-w-4xl mx-auto">
-                <h1 className="text-5xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-ion-blue to-fusion-pink">
-                    Empowering Your Vision
-                </h1>
-                <p className="text-xl text-center text-gray-800 mb-16">
-                    Applaude is built on the belief that a great idea shouldn't be limited by technology. We are a passionate team of AI engineers and product visionaries dedicated to creating a platform that empowers you to bring your mobile app ideas to life with unprecedented speed and simplicity.
-                </p>
-                <Card className="p-8 mb-16">
-                    <h2 className="text-3xl font-bold mb-4">Our Technology</h2>
-                    <p className="text-gray-800">
-                        At the heart of Applaude is a sophisticated swarm of AI agents, each an expert in its domain. From market analysis and brand identity to native code generation and quality assurance, our AI team works in concert to transform your vision into a polished, production-ready mobile application.
-                    </p>
-                </Card>
+      {/* Phones with founders */}
+      <div
+        className="
+          flex flex-col items-center gap-8 mt-8 w-full
+          sm:flex-row sm:justify-center sm:space-x-6
+        "
+      >
+        {team.map((member, index) => (
+          <div
+            key={index}
+            className="relative flex-none w-64 h-[500px] rounded-3xl border-[6px] border-black bg-gray-900 shadow-2xl overflow-hidden"
+          >
+            {/* Side buttons */}
+            <div className="absolute left-[-6px] top-12 w-1.5 h-12 rounded-r-full bg-black"></div>
+            <div className="absolute right-[-6px] top-20 w-1.5 h-16 rounded-l-full bg-black"></div>
 
-                <h2 className="text-4xl font-bold text-center mb-8">Founding Team</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                    {foundingTeam.map(member => (
-                        <Card key={member.name} className="p-6">
-                            <img src={member.image} alt={member.name} className="w-32 h-32 rounded-full mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold text-center">{member.name}</h3>
-                            <p className="text-lg text-center text-ion-blue mb-4">{member.role}</p>
-                            <p className="text-gray-800">{member.bio}</p>
-                        </Card>
-                    ))}
-                </div>
+            {/* Phone notch */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 sm:w-28 h-4 bg-black rounded-b-2xl z-20"></div>
 
-                <h2 className="text-4xl font-bold text-center mb-8">Behind the Scenes</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {[...Array(6)].map((_, i) => (
-                        <div key={i} className="bg-gray-800 h-48 rounded-lg animate-pulse"></div>
-                    ))}
-                </div>
-            </main>
-            {/* <Footer /> */}
-        </div>
-    );
+            {/* Background (image of founder) */}
+            <img
+              src={member.image}
+              alt={member.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+
+            {/* Overlay with name + role */}
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-end p-4 text-white">
+              <h2 className="text-lg font-bold">{member.name}</h2>
+              <p className="text-sm">{member.role}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* About Us description */}
+      <div className="relative z-10 mt-10 max-w-3xl text-center sm:text-left text-gray-800 bg-white bg-opacity-90 p-6 rounded-xl shadow-lg">
+        <p className="mb-2">
+          We are a passionate team of innovators committed to building technology
+          that empowers communities and drives change. Our diverse expertise
+          brings together creativity, strategy, and technical excellence.
+        </p>
+        <p className="mb-2">
+          Our mission is to provide inclusive solutions that make everyday
+          interactions simpler, safer, and more impactful for everyone.
+        </p>
+        <p>
+          To check the rest of the team,{" "}
+          <a href="/team" className="underline text-blue-700">
+            click here
+          </a>
+          .
+        </p>
+      </div>
+    </div>
+  );
 };
 
-export default AboutPage;
+export default AboutUs;

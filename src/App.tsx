@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AppRoutes } from '@/routes';
 import { Toaster } from 'sonner';
 import { useAuthStore } from './stores/useAuth';
+import { AuthProvider } from '@/contexts/AuthContext';
 import '@/styles/main.css';
 import './i18n';
 
@@ -16,9 +17,11 @@ const queryClient = new QueryClient();
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppRoutes />
-      <Toaster richColors />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <AuthProvider>   {/* ✅ Wrap your routes in AuthProvider */}
+        <AppRoutes />
+        <Toaster richColors />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

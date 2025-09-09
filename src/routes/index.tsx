@@ -5,6 +5,7 @@ import SuperuserRoute from '@/components/auth/SuperuserRoute';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Correctly lazy-load components that use `export default`
 const LandingPage = lazy(() => import('@/pages/LandingPage'));
@@ -29,7 +30,8 @@ const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
 const SubmitTestimonialPage = lazy(() => import('@/components/core/SubmitTestimonialPage'));
 const UpgradeSubscriptionPage = lazy(() => import('@/pages/UpgradeSubscriptionPage'));
-const DemoPage = lazy(()=> import('@/pages/DemoPage'))
+const DemoPage = lazy(() => import('@/pages/DemoPage'))
+const TeamsPage = lazy(() => import('@/pages/TeamPage'));
 
 // Fallback component for Suspense
 const PageLoader = () => (
@@ -39,6 +41,7 @@ const PageLoader = () => (
 );
 
 export const AppRoutes = () => {
+  const { user } = useAuth();
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
@@ -60,14 +63,14 @@ export const AppRoutes = () => {
               <Route path="/terms" element={<TermsOfServicePage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/upgrade" element={<UpgradeSubscriptionPage />} />
-              <Route path="/demo" element={<DemoPage/>}/>
-
+              <Route path="/demo" element={<DemoPage />} />
+              <Route path="/team" element={<TeamsPage />} />
               {/* Protected Routes */}
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/project/:id" element={<PrivateRoute><ProjectDetailPage /></PrivateRoute>} />
               <Route path="/project/:id/preview" element={<PrivateRoute><PreviewPage /></PrivateRoute>} />
               <Route path="/project/:id/analytics" element={<PrivateRoute><ProjectAnalyticsPage /></PrivateRoute>} />
-              <Route path="/create-project" element={<PrivateRoute><CreateProjectPage /></PrivateRoute>} />
+              <Route path="/create-project" element={<PrivateRoute><CreateProjectPage firstName={user?.username || "Guest"}/></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
               <Route path="/submit-testimonial/:projectId" element={<PrivateRoute><SubmitTestimonialPage /></PrivateRoute>} />
 

@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
-import Header from '../components/layout/Header';
+// import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { Search } from 'lucide-react';
 
 const NotFoundPage = () => {
     return (
         <div className="min-h-screen bg-white text-black flex flex-col">
-            <Header />
+            {/* <Header /> */}
             <main className="flex-grow flex items-center justify-center">
                 <div className="text-center">
                     <Search className="mx-auto h-24 w-24 text-ion-blue mb-4" />
