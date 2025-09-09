@@ -3,7 +3,7 @@
 const blogs = [
   {
     title: "Benefits of Mobile Apps",
-    body: "Mobile apps help businesses reach customers directly and improve engagement.",
+    body: "Mobile apps help businesses reach customers directly and improve engagement all the time.",
     image: "https://picsum.photos/300/500?random=1",
   },
   {
