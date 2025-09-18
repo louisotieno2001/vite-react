@@ -26,8 +26,20 @@ export function App() {
   );
 }
 
-// Render the app
-ReactDOM.createRoot(document.getElementById('root')!).render(
+// Render the app with proper root management
+const container = document.getElementById('root');
+if (!container) {
+  throw new Error('Root element not found');
+}
+
+// Check if root already exists to prevent multiple root creation
+let root = (container as any)._reactRootContainer;
+if (!root) {
+  root = ReactDOM.createRoot(container);
+  (container as any)._reactRootContainer = root;
+}
+
+root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

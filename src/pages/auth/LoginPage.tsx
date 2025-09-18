@@ -39,6 +39,8 @@ const LoginPage = () => {
     try {
       const response = await apiClient.post('/auth/login/', data);
       await login(response.data.access, response.data.refresh);
+      console.log('🔑 Auth Token for WebSocket testing:', response.data.access);
+      console.log('🌐 WebSocket URL:', `ws://localhost:8000/ws/chat/room1/?token=${response.data.access}`);
       toast.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {

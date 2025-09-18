@@ -26,6 +26,10 @@ export const useAuthStore = create(
       setTokens: (access, refresh) => {
         set({ accessToken: access, refreshToken: refresh });
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+
+        // Log the token for WebSocket testing
+        console.log('🔑 Auth Token for WebSocket testing:', access);
+        console.log('🌐 WebSocket URL:', `ws://localhost:8000/ws/chat/room1/?token=${access}`);
       },
       login: async (access, refresh) => {
         get().setTokens(access, refresh);
@@ -45,6 +49,11 @@ export const useAuthStore = create(
         const { accessToken } = get();
         if (accessToken) {
           apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
+          // Log the token for WebSocket testing
+          console.log('🔑 Auth Token for WebSocket testing:', accessToken);
+          console.log('🌐 WebSocket URL:', `ws://localhost:8000/ws/chat/room1/?token=${accessToken}`);
+
           try {
             const { data } = await apiClient.get<User>('/users/profile/');
             set({ user: data, isAuthenticated: true, isLoading: false });

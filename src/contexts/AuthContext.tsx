@@ -72,6 +72,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
+            // Ensure authToken is also set for WebSocket compatibility
+            localStorage.setItem('authToken', storedToken);
+            
+            // Log the token for WebSocket testing
+            console.log('🔑 Auth Token for WebSocket testing:', storedToken);
+            console.log('🌐 WebSocket URL:', `ws://localhost:8000/ws/chat/room1/?token=${storedToken}`);
+            
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
             apiClient.get('/users/me/')
                 .then(response => {
@@ -83,6 +90,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 })
                 .catch(() => {
                     localStorage.removeItem('token');
+                    localStorage.removeItem('authToken');
                     setIsLoading(false);
                 });
         } else {
@@ -96,9 +104,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const response = await apiClient.post('/users/token/', { email, password });
             const { token: responseToken, user_id, username, is_premium_subscribed } = response.data;
             localStorage.setItem('token', responseToken);
+            localStorage.setItem('authToken', responseToken); // Add this for WebSocket compatibility
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${responseToken}`;
             setUser({ email, userId: user_id, username, is_premium_subscribed });
             setToken(responseToken);
+            
+            // Log the token for WebSocket testing
+            console.log('🔑 Auth Token for WebSocket testing:', responseToken);
+            console.log('🌐 WebSocket URL:', `ws://localhost:8000/ws/chat/room1/?token=${responseToken}`);
+            
             setIsLoading(false);
         } catch (error) {
             console.error("Login failed", error);
@@ -118,6 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('authToken');
         localStorage.removeItem('user');
         setToken(null);
         setUser(null);
