@@ -33,6 +33,8 @@ const CreateProjectPage: React.FC<ChatUIProps> = ({ firstName }) => {
   const [currentProject, setCurrentProject] = useState<ProjectData | null>(null);
   const [projectProgress, setProjectProgress] = useState(0);
   const [projectStatus, setProjectStatus] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentTask, setCurrentTask] = useState<{name: string; description: string} | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +68,91 @@ const CreateProjectPage: React.FC<ChatUIProps> = ({ firstName }) => {
     };
   }, [user]);
 
+  // Poll for project status updates every 3 seconds
+  useEffect(() => {
+    if (!currentProject?.id || !accessToken) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const baseUrl = process.env.NODE_ENV === 'production'
+          ? window.location.origin
+          : 'http://localhost:8000';
+
+        const response = await fetch(`${baseUrl}/api/projects/${currentProject.id}/`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const projectData = await response.json();
+          const progress = getProgressFromStatus(projectData.status);
+
+          // Update even if progress hasn't changed, but status might have
+          setProjectProgress(progress);
+          setProjectStatus(projectData.status_message || 'Processing...');
+
+          // Update project data
+          setCurrentProject({
+            id: projectData.id,
+            name: projectData.name,
+            source_url: projectData.source_url,
+            user_persona_document: projectData.user_persona_document,
+            brand_palette: projectData.brand_palette,
+            generated_code_path: projectData.generated_code_path,
+          });
+
+          // Check if processing status changed
+          const isCurrentlyProcessing = [
+            'ANALYSIS_PENDING',
+            'DESIGN_PENDING',
+            'CODE_GENERATION',
+            'QA_PENDING',
+            'DEPLOYMENT_PENDING',
+          ].includes(projectData.status);
+
+          setIsProcessing(isCurrentlyProcessing);
+
+          // If completed, show completion message
+          if (projectData.status === 'COMPLETED' && progress === 100) {
+            setMessages((prev) => [...prev, {
+              text: `🎉 Project completed! Your app is ready.`,
+              sender: "system"
+            }]);
+            if (projectData.generated_code_path) {
+              setMessages((prev) => [...prev, {
+                text: `📥 Download your app: ${projectData.generated_code_path}`,
+                sender: "system"
+              }]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error polling project status:', error);
+      }
+    }, 3000); // Poll every 3 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [currentProject?.id, accessToken]);
+
+  // Helper function to convert status to progress
+  const getProgressFromStatus = (status: string): number => {
+    const statusProgress: { [key: string]: number } = {
+      'PENDING': 0,
+      'ANALYSIS_PENDING': 10,
+      'ANALYSIS_COMPLETE': 20,
+      'DESIGN_PENDING': 30,
+      'DESIGN_COMPLETE': 40,
+      'CODE_GENERATION': 50,
+      'QA_PENDING': 60,
+      'QA_COMPLETE': 70,
+      'DEPLOYMENT_PENDING': 80,
+      'COMPLETED': 100,
+      'FAILED': 0,
+    };
+    return statusProgress[status] || 0;
+  };
+
   const connectWebSocket = () => {
     if (!user || !accessToken) return;
 
@@ -80,7 +167,7 @@ const CreateProjectPage: React.FC<ChatUIProps> = ({ firstName }) => {
     const host = process.env.NODE_ENV === 'production'
       ? window.location.host
       : 'localhost:8000';
-    const wsUrl = `${protocol}//${host}/ws/chat/room1/?token=${accessToken}`;
+  const wsUrl = `${protocol}//${host}/ws/chat/chat_room1/?token=${accessToken}`;
 
     console.log('🔌 Connecting to WebSocket:', wsUrl);
 
@@ -101,22 +188,90 @@ const CreateProjectPage: React.FC<ChatUIProps> = ({ firstName }) => {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      
+
       if (data.type === 'project_status_update') {
         // Handle project status updates
         setCurrentProject(data.project_data);
         setProjectProgress(data.progress);
         setProjectStatus(data.status_message);
-        
-        // Add status update message to chat
-        setMessages((prev) => [...prev, {
-          text: `📊 Project Status: ${data.status_message} (${data.progress}%)`,
-          sender: "system"
-        }]);
-        
+        setIsProcessing(data.is_processing || false);
+
+        // Add status update message to chat only if not processing
+        if (!data.is_processing) {
+          setMessages((prev) => [...prev, {
+            text: `📊 Project Status: ${data.status_message} (${data.progress}%)`,
+            sender: "system"
+          }]);
+        }
+
         // If project is completed, save the project data
         if (data.progress === 100 && data.project_data) {
           saveCompletedProject(data.project_data);
+          // Show download URL if generated code path exists
+          if (data.project_data.generated_code_path) {
+            setMessages((prev) => [...prev, {
+              text: `🎉 Your app is ready! Download the source code here: ${data.project_data.generated_code_path}`,
+              sender: "system"
+            }]);
+          } else {
+            setMessages((prev) => [...prev, {
+              text: `🎉 Your project is complete! Check your project dashboard for download options.`,
+              sender: "system"
+            }]);
+          }
+        }
+      } else if (data.type === 'task_started') {
+        // Handle task start notifications
+        setCurrentTask({ name: data.task_name, description: data.task_description });
+        setIsProcessing(true);
+
+        // Update status and progress immediately when task starts
+        const taskStatusMap: { [key: string]: { status: string, progress: number } } = {
+          'Market Analysis': { status: 'Analyzing market and target user...', progress: 10 },
+          'UI/UX Design': { status: 'Creating UI/UX design...', progress: 30 },
+          'Code Generation': { status: 'Generating application source code...', progress: 50 },
+          'Quality Assurance': { status: 'Performing automated QA checks...', progress: 60 },
+          'Security Analysis': { status: 'Performing cybersecurity audit...', progress: 70 },
+          'Deployment': { status: 'Deploying application to Amazon S3...', progress: 80 }
+        };
+
+        const taskInfo = taskStatusMap[data.task_name];
+        if (taskInfo) {
+          setProjectStatus(taskInfo.status);
+          setProjectProgress(taskInfo.progress);
+        }
+
+        setMessages((prev) => [...prev, {
+          text: `🚀 Starting ${data.task_name}: ${data.task_description}`,
+          sender: "system"
+        }]);
+      } else if (data.type === 'task_completed') {
+        // Handle task completion notifications
+        setMessages((prev) => [...prev, {
+          text: `✅ ${data.task_name} completed: ${data.task_result}`,
+          sender: "system"
+        }]);
+        setCurrentTask(null);
+
+        // Update status and progress immediately when task completes
+        const completionStatusMap: { [key: string]: { status: string, progress: number } } = {
+          'Market Analysis': { status: 'Market analysis complete. Ready for design.', progress: 20 },
+          'UI/UX Design': { status: 'Design complete. Ready for code generation.', progress: 40 },
+          'Code Generation': { status: 'Code generation finished. Pending QA.', progress: 60 },
+          'Quality Assurance': { status: 'QA checks passed. Ready for deployment.', progress: 70 },
+          'Security Analysis': { status: 'Security audit passed. Ready for deployment.', progress: 80 },
+          'Deployment': { status: 'Deployment successful! Your app is now available.', progress: 100 }
+        };
+
+        const completionInfo = completionStatusMap[data.task_name];
+        if (completionInfo) {
+          setProjectStatus(completionInfo.status);
+          setProjectProgress(completionInfo.progress);
+          if (completionInfo.progress === 100) {
+            setIsProcessing(false);
+          }
+        } else {
+          setIsProcessing(false);
         }
       } else {
         // Handle regular chat messages
@@ -200,14 +355,17 @@ const CreateProjectPage: React.FC<ChatUIProps> = ({ firstName }) => {
     }
   };
 
-  // Parser to detect code blocks and normal text
+  // Parser to detect code blocks, normal text, and download URLs  
   const renderMessage = (text: string) => {
-    const regex = /```(\w+)?\n([\s\S]*?)```/g;
+    const codeRegex = /```(\w+)?\n([\s\S]*?)```/g;
+    const urlRegex = /(http[s]?:\/\/[^\s]+)/g;
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
+    
+    // First handle code blocks
     let match;
 
-    while ((match = regex.exec(text)) !== null) {
+    while ((match = codeRegex.exec(text)) !== null) {
       if (match.index > lastIndex) {
         parts.push(
           <p key={lastIndex} className="mb-2 whitespace-pre-wrap">
@@ -225,22 +383,84 @@ const CreateProjectPage: React.FC<ChatUIProps> = ({ firstName }) => {
           <code className={`language-${lang}`}>{code}</code>
         </pre>
       );
-      lastIndex = regex.lastIndex;
+      lastIndex = codeRegex.lastIndex;
     }
 
+    // Handle the remaining text, which may include URLs
     if (lastIndex < text.length) {
-      parts.push(
-        <p key={lastIndex} className="whitespace-pre-wrap">
-          {text.slice(lastIndex)}
-        </p>
-      );
+      const remainingText = text.slice(lastIndex);
+      let match;
+      let urlLastIndex = 0;
+      
+      // Extract URLs from remaining text
+      while ((match = urlRegex.exec(remainingText)) !== null) {
+        if (match.index > urlLastIndex) {
+          parts.push(
+            <p key={`remaining-${urlLastIndex}`} className="whitespace-pre-wrap mb-2">
+              {remainingText.slice(urlLastIndex, match.index)}
+            </p>
+          );
+        }
+        
+        // Add clickable URL
+        parts.push(
+          <p key={`url-${match.index}`} className="mb-2">
+            <a 
+              href={match[1]} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 underline hover:text-blue-800 break-all"
+            >
+              📥 Download your source code: {match[1]}
+            </a>
+          </p>
+        );
+        urlLastIndex = urlRegex.lastIndex;
+      }
+      
+      // Add any remaining text after URLs
+      if (urlLastIndex < remainingText.length) {
+        parts.push(
+          <p key={`final-text`} className="whitespace-pre-wrap">
+            {remainingText.slice(urlLastIndex)}
+          </p>
+        );
+      }
     }
 
     return parts;
   };
 
   return (
-    <div className="flex h-screen w-full">
+    <div className="flex h-screen w-full relative">
+      {/* Processing Overlay */}
+      {isProcessing && (
+        <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate-pulse">
+          <div className="bg-white p-8 rounded-xl shadow-2xl text-center border-4 border-purple-300 max-w-md w-full mx-4">
+            <div className="w-16 h-16 border-8 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 animate-bounce">🚀 Building Your App</h2>
+            
+            {/* Current Task Information */}
+            {currentTask && (
+              <div className="bg-purple-50 p-4 rounded-lg mb-4 border border-purple-200">
+                <h3 className="text-lg font-semibold text-purple-800 mb-2">✅ {currentTask.name}</h3>
+                <p className="text-sm text-purple-700">{currentTask.description}</p>
+              </div>
+            )}
+            
+            <p className="text-lg text-gray-700 mb-4 font-medium">{projectStatus}</p>
+            <div className="mt-6 bg-gray-200 rounded-full h-4 shadow-inner">
+              <div
+                className="bg-gradient-to-r from-purple-500 to-purple-700 h-4 rounded-full transition-all duration-500 ease-out shadow-lg"
+                style={{ width: `${projectProgress}%` }}
+              ></div>
+            </div>
+            <p className="text-lg font-semibold text-purple-600 mt-4">{projectProgress}% Complete</p>
+            <p className="text-sm text-gray-500 mt-2">Please wait while we work our magic...</p>
+          </div>
+        </div>
+      )}
+
       {/* Left Side - Phone Preview */}
       <div className="bg-purple-700 w-1/3 flex flex-col items-center justify-center text-white p-6">
         <div className="flex items-center mb-6">
@@ -342,22 +562,33 @@ const CreateProjectPage: React.FC<ChatUIProps> = ({ firstName }) => {
           {loading && (
             <div className="self-start text-gray-500 text-sm">...</div>
           )}
+          {isProcessing && (
+            <div className="self-start flex items-center space-x-3 bg-purple-50 p-3 rounded-lg border border-purple-200 animate-pulse">
+              <div className="w-6 h-6 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+              <div>
+                <span className="text-purple-700 font-medium">🔧 Processing...</span>
+                <p className="text-sm text-purple-600">{projectStatus}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Input box */}
-        <div className="mt-4 flex items-center border-2 border-purple-600 rounded-full px-3 py-2">
-          <Folder className="w-6 h-6 text-purple-600 mr-2 cursor-pointer" />
+        <div className={`mt-4 flex items-center border-2 rounded-full px-3 py-2 ${isProcessing ? 'border-gray-300 bg-gray-100' : 'border-purple-600'}`}>
+          <Folder className={`w-6 h-6 mr-2 cursor-pointer ${isProcessing ? 'text-gray-400' : 'text-purple-600'}`} />
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 outline-none text-gray-800 px-2"
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder={isProcessing ? "Processing... Please wait" : "Type a message..."}
+            className="flex-1 outline-none px-2 text-gray-800"
+            onKeyDown={(e) => e.key === "Enter" && !isProcessing && sendMessage()}
+            disabled={isProcessing}
           />
           <button
             onClick={sendMessage}
-            className="ml-2 bg-purple-600 p-2 rounded-full text-white"
+            className={`ml-2 p-2 rounded-full text-white ${isProcessing ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+            disabled={isProcessing}
           >
             <Send className="w-5 h-5" />
           </button>
